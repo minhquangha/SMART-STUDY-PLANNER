@@ -1,14 +1,13 @@
 import express from 'express'
-import type { Request, Response ,Application} from 'express'
+import type { Application} from 'express'
+import { globalErrorHandler } from '@/middlewares/global_error.js'
+import authRoutes from '@/routes/auth.js'
 const app:Application = express()
 const port = 3000
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!')
-})
+app.use(express.json())
+app.use("/",authRoutes);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+app.use(globalErrorHandler);
 
 export default app
