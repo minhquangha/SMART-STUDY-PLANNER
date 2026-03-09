@@ -7,4 +7,5 @@ router.get("/profile", authMiddlewares, (req, res) => {
     res.json({ message: "User profile data" });
 });
 
+
 export default router;
