@@ -26,7 +26,10 @@ const getTasks = async (req: Request, res: Response) => {
 	if (!req.user) {
 		return res.status(401).json({ message: 'Unauthorized' });
 	}
-	const {task}  = req.query;
+	const {sort}  = req.query;
+	const page  =  Number(req.query.page) || 1;
+	const limit =  Number(req.query.limit) || 10;
+	const skip  =  (page - 1) * limit;
 	const sortMap : Record<string, any> = {
 		'deadline': { dueDate: 1 },
 		'priority': { priority: -1 },
@@ -34,11 +37,11 @@ const getTasks = async (req: Request, res: Response) => {
 		'recommended': { dueDate: 1, priority: -1, status: -1 },
 		'recent': { createdAt: -1 },
 	};
-	const sortOption = sortMap[task as string] || { createdAt: -1};
+	const sortOption = sortMap[sort as string] ?? { createdAt: -1};
 
 	// Logic to get all tasks for the authenticated user
 	const userId = req.user?.userId;
-	const tasks = await Task.find({ userId: userId }).sort(sortOption);
+	const tasks = await Task.find({ userId: userId }).sort(sortOption).skip(skip).limit(limit);
 	res.json(tasks);
 };
 
