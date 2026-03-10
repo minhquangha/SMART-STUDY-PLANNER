@@ -41,7 +41,9 @@ const authController = {
         return res.status(400).json({ message: "Invalid email " });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
+        console.log(isPasswordValid)
         return res.status(400).json({ message: "Invalid  password" });
     }
     // Generate JWT token

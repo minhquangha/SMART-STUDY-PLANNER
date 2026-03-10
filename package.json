@@ -21,7 +21,8 @@
     "mongoose": "^9.2.3",
     "nodemon": "^3.1.14",
     "tsconfig-paths": "^4.2.0",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
