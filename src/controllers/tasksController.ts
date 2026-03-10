@@ -9,6 +9,7 @@ interface CreateTaskRequest extends Request {
 		title: string;
 		description?: string;
 		dueDate?: Date;
+		priority?: 'low' | 'medium' | 'high';
 	};
 }
 
@@ -25,30 +26,48 @@ const getTasks = async (req: Request, res: Response) => {
 	if (!req.user) {
 		return res.status(401).json({ message: 'Unauthorized' });
 	}
+	const {task}  = req.query;
+	const sortMap : Record<string, any> = {
+		'deadline': { dueDate: 1 },
+		'priority': { priority: -1 },
+		'status': { status: -1 },
+		'recommended': { dueDate: 1, priority: -1, status: -1 },
+		'recent': { createdAt: -1 },
+	};
+	const sortOption = sortMap[task as string] || { createdAt: -1};
+
 	// Logic to get all tasks for the authenticated user
 	const userId = req.user?.userId;
-	const tasks = await Task.find({ userId: userId });
-	const responseTasks = tasks.map((task) => ({
-        id: task._id,
-		title: task.title,
-		description: task.description,
-		status: task.status,
-		createdAt: task.createdAt,
-	}));
-	res.json(responseTasks);
+	const tasks = await Task.find({ userId: userId }).sort(sortOption);
+	res.json(tasks);
 };
+
+const getTasksToday = async (req: Request, res: Response) => {
+	if (!req.user) {
+		return res.status(401).json({ message: 'Unauthorized' });
+	}
+	const today =  new Date();
+	today.setHours(23, 59, 59, 999);
+	const tasksToday =  await Task.find({
+		dueDate: { $lte: today },
+		userId: req.user?.userId,
+		status: { $in: ['pending', 'in progress'] },
+	}).sort({ dueDate: 1 ,priority: -1});
+	res.json(tasksToday);
+}
 
 const createTask = async (req: CreateTaskRequest, res: Response) => {
 	// Logic to create a new task for the authenticated user
 	if (!req.user) {
 		return res.status(401).json({ message: 'Unauthorized' });
 	}
-	const { title, description, dueDate } = req.body;
+	const { title, description, dueDate, priority } = req.body;
 	const userId = req.user?.userId;
 	const newTask = new Task({
 		title,
 		description,
 		dueDate,
+		priority,
 		userId,
 	});
 	await newTask.save();
@@ -74,4 +93,4 @@ const deleteTask = async (req: DeleteTaskRequest, res: Response) => {
 	}
 };
 
-export { getTasks, createTask ,updateTask, deleteTask};
+export { getTasks, createTask ,updateTask, deleteTask, getTasksToday};
