@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import Task from '@/models/tasks.js';
+import { sendError, sendSuccess } from '@/utils/apiresponse.js';
 interface CreateTaskRequest extends Request {
 	user?: {
 		userId: string;
@@ -49,12 +50,12 @@ const getTasks = async (req: Request, res: Response) => {
 	const sortOption = sortMap[sort] ?? { createdAt: -1};
 
 	const tasks = await Task.find(filter).sort(sortOption).skip(skip).limit(limit);
-	res.json(tasks);
+	sendSuccess(res, tasks);
 };
 
 const getTasksToday = async (req: Request, res: Response) => {
 	if (!req.user) {
-		return res.status(401).json({ message: 'Unauthorized' });
+		return sendError(res, 'Unauthorized', 401);
 	}
 	const today =  new Date();
 	today.setHours(23, 59, 59, 999);
@@ -63,13 +64,13 @@ const getTasksToday = async (req: Request, res: Response) => {
 		userId: req.user?.userId,
 		status: { $in: ['pending', 'in progress'] },
 	}).sort({ dueDate: 1 ,priority: -1});
-	res.json(tasksToday);
+	sendSuccess(res, tasksToday);
 }
 
 const createTask = async (req: CreateTaskRequest, res: Response) => {
 	// Logic to create a new task for the authenticated user
 	if (!req.user) {
-		return res.status(401).json({ message: 'Unauthorized' });
+		return sendError(res, 'Unauthorized', 401);
 	}
 	const { title, description, dueDate, priority } = req.body;
 	const userId = req.user?.userId;
@@ -97,9 +98,9 @@ const deleteTask = async (req: DeleteTaskRequest, res: Response) => {
 	// Logic to delete a specific task by ID for the authenticated user
 	try {
 		await Task.findByIdAndDelete(req.params.id);
-		return res.json({ message: `Task with ID ${req.params.id} deleted` });
+		return sendSuccess(res, { message: `Task with ID ${req.params.id} deleted` });
 	} catch (error) {
-		return res.status(500).json({ message: 'Server error' });
+		return sendError(res, 'Server error', 500);
 	}
 };
 
