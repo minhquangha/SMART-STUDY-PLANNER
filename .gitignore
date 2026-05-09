@@ -3,3 +3,4 @@ dist/
 build/
 .env
 roadmap.txt
+/src/generated/prisma
