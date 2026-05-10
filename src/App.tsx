@@ -1,21 +1,45 @@
-import { Button } from "@/components/ui/button"
-
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Home from "@/components/pages/Home.tsx"
+import LoginPage from "@/components/pages/Login.tsx"
+import RegisterPage from "@/components/pages/Register.tsx"
+import Dashboard from "@/components/pages/DashBoard.tsx"
+import ProtectedRoute from "@/components/ProtectedRoute.tsx"
+import AdminProtectedRoute from "@/components/AdminProtectedRoute.tsx"
+import TaskPage from "@/components/pages/DashboardPage.tsx"
+import ProfilePage from "@/components/pages/Profile.tsx"
+import Status from "@/components/pages/Status.tsx"
+import AdminLoginPage from "@/components/pages/AdminLogin.tsx"
+import AdminUsersPage from "@/components/pages/AdminUsers.tsx"
 export function App() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/admin-login" element={<AdminLoginPage />} />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminProtectedRoute>
+              <AdminUsersPage />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="tasks" element={<TaskPage />} />
+          <Route index  element= {<Status/>} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
+        <Route path="*" element={<h1>Not Found</h1>} />
+      </Routes>
+    </BrowserRouter>
   )
 }
-
-export default App
