@@ -4,13 +4,14 @@ import { sendError,sendSuccess} from '@/utils/apiresponse.js';
 interface CreateTaskRequest extends Request {
 	user?: {
 		userId: string;
-		email: string;
+		email?: string;
 	};
 	body: {
 		title: string;
 		description?: string;
 		dueDate?: Date;
 		priority?: 'low' | 'medium' | 'high';
+		status?: 'pending' | 'in progress' | 'completed';
 	};
 }
 
@@ -20,13 +21,14 @@ const createTask = async (req: CreateTaskRequest, res: Response) => {
 	if (!req.user) {
 		return sendError(res, 'Unauthorized', 401);
 	}
-	const { title, description, dueDate, priority } = req.body;
+	const { title, description, dueDate, priority, status } = req.body;
 	const userId = req.user?.userId;
 	const newTask = new Task({
 		title,
-		description,
+		description: description ?? '',
 		dueDate,
 		priority,
+		status,
 		userId,
 	});
 	await newTask.save();

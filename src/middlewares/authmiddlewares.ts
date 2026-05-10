@@ -10,10 +10,18 @@ export const authMiddlewares = (req: Request, res: Response, next: NextFunction)
     if (!token) {
         return res.status(401).json({ message: 'No token provided' });
     }
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+        return res.status(500).json({ message: 'JWT_SECRET is not configured' });
+    }
     try {
-        console.log("Token received:", token);
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
-        req.user = decoded;
+        const decoded = jwt.verify(token, jwtSecret) as { userId?: string; email?: string };
+        if (!decoded.userId) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+        req.user = decoded.email
+            ? { userId: decoded.userId, email: decoded.email }
+            : { userId: decoded.userId };
         next();
     } catch (error) {
         console.log(error);

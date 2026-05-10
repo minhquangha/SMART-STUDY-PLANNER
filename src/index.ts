@@ -5,7 +5,9 @@ import type { Application} from 'express'
 import { globalErrorHandler } from '@/middlewares/global_error.js'
 import publicRoutes from '@/api/public/index.js'
 import meRoute from '@/api/me/index.js'
+import adminRoutes from '@/api/admin/index.js'
 import{ authMiddlewares} from '@/middlewares/authmiddlewares.js'
+import adminMiddleware from '@/middlewares/admin.js'
 import cors from 'cors'
 dotenv.config();
 connectDB();
@@ -14,6 +16,7 @@ app.use(cors())
 app.use(express.json())
 app.use("/",publicRoutes);
 app.use("/me",authMiddlewares,meRoute);
+app.use("/admin", adminMiddleware, adminRoutes);
 app.use(globalErrorHandler);
 
 app.listen(3000, () => {

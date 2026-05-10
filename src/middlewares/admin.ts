@@ -9,8 +9,18 @@ const adminMiddleware = async (req: Request, res: Response, next: NextFunction) 
         return sendError(res, "No token provided", 401);
     }
     const token = authHeader.split(" ")[1];
+    if (!token) {
+        return sendError(res, "No token provided", 401);
+    }
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+        return sendError(res, "JWT_SECRET is not configured", 500);
+    }
     try {
-        const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+        const decoded = jwt.verify(token, jwtSecret) as { id?: string };
+        if (!decoded.id) {
+            return sendError(res, "Invalid token", 401);
+        }
         const admin = await Admin.findById(decoded.id);
         if (!admin) {
             return sendError(res, "Admin not found", 404);
