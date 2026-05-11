@@ -5,7 +5,7 @@ import {
   type ToastInput,
   type ToastItem,
   type ToastVariant,
-} from "@/components/ui/toast-context.ts"
+} from "@/contexts/toast-context"
 
 const variantStyles: Record<
   ToastVariant,

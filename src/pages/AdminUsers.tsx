@@ -28,13 +28,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx"
-import { useToast } from "@/components/ui/toast-context.ts"
+import { useToast } from "@/contexts/toast-context"
 import {
+  adminLogout,
   deleteAdminUser,
   getAdminUsers,
   type AdminUser,
   type AdminUsersPagination,
-} from "@/service/adminService.ts"
+} from "@/services/adminService"
 
 const PAGE_LIMIT = 10
 
@@ -99,7 +100,6 @@ export default function AdminUsersPage() {
       setPagination(data.pagination)
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 401) {
-        localStorage.removeItem("adminToken")
         navigate("/admin-login")
         return
       }
@@ -164,8 +164,10 @@ export default function AdminUsersPage() {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken")
+  const handleLogout = async () => {
+    await adminLogout().catch((error) => {
+      console.error("Admin logout failed:", error)
+    })
     navigate("/admin-login")
   }
 
@@ -187,7 +189,11 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="gap-2" onClick={handleLogout}>
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => void handleLogout()}
+          >
             <LogOut className="h-4 w-4" />
             Dang xuat
           </Button>

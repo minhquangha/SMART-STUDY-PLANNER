@@ -1,4 +1,4 @@
-import { api } from "@/lib/api.ts"
+import { api } from "@/services/api"
 
 export interface AdminLoginData {
   username: string
@@ -39,12 +39,30 @@ export interface AdminUsersParams {
 }
 
 export const adminLogin = async (data: AdminLoginData) => {
-  const response = await api.post<{ message: string; token: string }>(
+  const response = await api.post<{ message: string }>(
     "/admin-login",
     data
   )
 
   return response.data
+}
+
+export const adminLogout = async () => {
+  const response = await api.post<{
+    success: boolean
+    data: { message: string }
+  }>("/admin-logout")
+
+  return response.data.data
+}
+
+export const getAdminSession = async () => {
+  const response = await api.get<{
+    success: boolean
+    data: { authenticated: boolean }
+  }>("/admin/session")
+
+  return response.data.data
 }
 
 export const getAdminUsers = async (params: AdminUsersParams) => {

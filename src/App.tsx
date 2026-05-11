@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Home from "@/components/pages/Home.tsx"
-import LoginPage from "@/components/pages/Login.tsx"
-import RegisterPage from "@/components/pages/Register.tsx"
-import Dashboard from "@/components/pages/DashBoard.tsx"
-import ProtectedRoute from "@/components/ProtectedRoute.tsx"
-import AdminProtectedRoute from "@/components/AdminProtectedRoute.tsx"
-import TaskPage from "@/components/pages/DashboardPage.tsx"
-import ProfilePage from "@/components/pages/Profile.tsx"
-import Status from "@/components/pages/Status.tsx"
-import AdminLoginPage from "@/components/pages/AdminLogin.tsx"
-import AdminUsersPage from "@/components/pages/AdminUsers.tsx"
+import Home from "@/pages/Home"
+import LoginPage from "@/pages/Login"
+import RegisterPage from "@/pages/Register"
+import DashboardRoute from "@/routes/DashboardRoute"
+import ProtectedRoute from "@/routes/ProtectedRoute"
+import AdminProtectedRoute from "@/routes/AdminProtectedRoute"
+import TasksPage from "@/pages/TasksPage"
+import ProfilePage from "@/pages/Profile"
+import Status from "@/pages/DashboardOverview"
+import AdminLoginPage from "@/pages/AdminLogin"
+import AdminUsersPage from "@/pages/AdminUsers"
 export function App() {
   return (
     <BrowserRouter>
@@ -30,11 +30,11 @@ export function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <DashboardRoute />
             </ProtectedRoute>
           }
         >
-          <Route path="tasks" element={<TaskPage />} />
+          <Route path="tasks" element={<TasksPage />} />
           <Route index  element= {<Status/>} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

@@ -1,4 +1,4 @@
-import { api } from "@/lib/api.ts";
+import { api } from "@/services/api";
 
 // service/taskService.ts
 export interface Task {

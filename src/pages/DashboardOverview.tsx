@@ -14,7 +14,7 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge.tsx"
 import { Button } from "@/components/ui/button.tsx"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox.tsx"
 import {
   Dialog,
@@ -29,9 +29,9 @@ import {
   addStudyTime,
   getStatusOverview,
   type StatusOverview,
-} from "@/service/statusService.ts"
-import { updateTask } from "@/service/taskService.ts"
-import type { Task } from "@/service/taskService.ts"
+} from "@/services/statusService"
+import { updateTask } from "@/services/taskService"
+import type { Task } from "@/services/taskService"
 
 const priorityLabel: Record<Task["priority"], string> = {
   low: "Thấp",

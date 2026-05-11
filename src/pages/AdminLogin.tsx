@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/card.tsx"
 import { Input } from "@/components/ui/input.tsx"
 import { Label } from "@/components/ui/label.tsx"
-import { useToast } from "@/components/ui/toast-context.ts"
-import { adminLogin } from "@/service/adminService.ts"
+import { useToast } from "@/contexts/toast-context"
+import { adminLogin } from "@/services/adminService"
 
 export default function AdminLoginPage() {
   const navigate = useNavigate()
@@ -27,8 +27,7 @@ export default function AdminLoginPage() {
     setIsSubmitting(true)
 
     try {
-      const response = await adminLogin({ username, password })
-      localStorage.setItem("adminToken", response.token)
+      await adminLogin({ username, password })
       toast({
         title: "Dang nhap admin thanh cong",
         description: "Ban co the quan ly nguoi dung trong he thong.",

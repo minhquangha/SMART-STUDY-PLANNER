@@ -1,10 +1,10 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 
-import "./index.css"
-import { App } from "@/App.tsx"
-import { ThemeProvider } from "@/components/theme-provider.tsx"
-import { ToastProvider } from "@/components/ui/toast.tsx"
+import "./styles/index.css"
+import { App } from "@/App"
+import { ThemeProvider } from "@/contexts/theme-provider"
+import { ToastProvider } from "@/contexts/toast"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

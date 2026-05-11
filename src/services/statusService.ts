@@ -1,5 +1,5 @@
-import { api } from "@/lib/api.ts"
-import type { Task } from "@/service/taskService.ts"
+import { api } from "@/services/api"
+import type { Task } from "@/services/taskService"
 
 export interface StatusOverview {
   user: {
