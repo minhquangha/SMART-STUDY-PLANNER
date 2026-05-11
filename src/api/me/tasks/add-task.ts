@@ -1,6 +1,10 @@
 import type { Request, Response } from 'express';
 import Task from '@/models/tasks.js';
 import { sendError,sendSuccess} from '@/utils/apiresponse.js';
+import {
+	createNotification,
+	getTaskLink,
+} from '@/services/notificationService.js';
 interface CreateTaskRequest extends Request {
 	user?: {
 		userId: string;
@@ -32,6 +36,15 @@ const createTask = async (req: CreateTaskRequest, res: Response) => {
 		userId,
 	});
 	await newTask.save();
+	await createNotification({
+		userId,
+		type: 'task_created',
+		title: 'Task moi',
+		message: `"${newTask.title}" da duoc them vao ke hoach hoc tap.`,
+		link: getTaskLink(newTask.title),
+	}).catch((error) => {
+		console.error('Error creating task notification:', error);
+	});
 	sendSuccess(res, { message: 'Task created' });
 };
 

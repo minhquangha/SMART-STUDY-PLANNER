@@ -6,6 +6,10 @@ import { sendError, sendSuccess } from '@/utils/apiresponse.js';
 
 const router: Router = Router();
 
+router.get('/session', (_req: Request, res: Response) => {
+  return sendSuccess(res, { authenticated: true });
+});
+
 const parsePositiveInteger = (
   value: unknown,
   defaultValue: number,

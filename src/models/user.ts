@@ -18,8 +18,14 @@ const userSchema = new mongoose.Schema({
   },
 
   avatar: {
-    type: String, // URL ảnh
-    default: "",
+    url: {
+      type: String,
+      default: "",
+    },
+    publicId: {
+      type: String,
+      default: "",
+    },
   },
 
   bio: {

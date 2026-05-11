@@ -2,6 +2,7 @@ import {Admin} from "@/models/admin.js";
 import z from "zod";
 import jwt from "jsonwebtoken";
 import type { Request,Response } from "express";
+import { setAdminCookie } from "@/utils/authCookies.js";
 const loginSchema = {
     username: z.string().min(3).max(30),
     password: z.string().min(6).max(30),
@@ -24,7 +25,8 @@ const adminLogin = async (req:Request, res: Response) => {
         throw new Error("JWT_SECRET is not defined in environment variables");
     }
     const token = jwt.sign({ id: admin._id }, secretKey, { expiresIn: "1h" });
-    return res.status(200).json({ message: "Admin login successful",token });
+    setAdminCookie(res, token);
+    return res.status(200).json({ message: "Admin login successful" });
 }
 
 export default adminLogin;

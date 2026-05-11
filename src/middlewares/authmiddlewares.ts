@@ -1,12 +1,9 @@
 import jwt from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
+import { AUTH_COOKIE_NAME } from '@/utils/authCookies.js';
 
 export const authMiddlewares = (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) {
-        return res.status(401).json({ message: 'No token provided' });
-    }
-    const token = authHeader.split(' ')[1]; // Assuming "Bearer <token>"
+    const token = req.cookies?.[AUTH_COOKIE_NAME];
     if (!token) {
         return res.status(401).json({ message: 'No token provided' });
     }

@@ -2,13 +2,10 @@ import type { Request, Response, NextFunction } from "express";
 import { Admin } from "@/models/admin.js";
 import { sendError } from "@/utils/apiresponse.js";
 import jwt from "jsonwebtoken";
+import { ADMIN_COOKIE_NAME } from "@/utils/authCookies.js";
 
 const adminMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-        return sendError(res, "No token provided", 401);
-    }
-    const token = authHeader.split(" ")[1];
+    const token = req.cookies?.[ADMIN_COOKIE_NAME];
     if (!token) {
         return sendError(res, "No token provided", 401);
     }
