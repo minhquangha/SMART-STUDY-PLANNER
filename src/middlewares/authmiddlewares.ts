@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
 import { AUTH_COOKIE_NAME } from '@/utils/authCookies.js';
+import { User } from '@/models/user.js';
 
-export const authMiddlewares = (req: Request, res: Response, next: NextFunction) => {
+export const authMiddlewares = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.[AUTH_COOKIE_NAME];
     if (!token) {
         return res.status(401).json({ message: 'No token provided' });
@@ -16,9 +17,15 @@ export const authMiddlewares = (req: Request, res: Response, next: NextFunction)
         if (!decoded.userId) {
             return res.status(401).json({ message: 'Invalid token' });
         }
-        req.user = decoded.email
-            ? { userId: decoded.userId, email: decoded.email }
-            : { userId: decoded.userId };
+        const user = await User.findById(decoded.userId).select('email role').lean();
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+        req.user = {
+            userId: String(user._id),
+            email: user.email,
+            role: user.role === 'admin' ? 'admin' : 'user',
+        };
         next();
     } catch (error) {
         console.log(error);

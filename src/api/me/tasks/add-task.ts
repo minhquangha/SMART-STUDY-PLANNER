@@ -9,6 +9,7 @@ interface CreateTaskRequest extends Request {
 	user?: {
 		userId: string;
 		email?: string;
+		role: 'user' | 'admin';
 	};
 	body: {
 		title: string;

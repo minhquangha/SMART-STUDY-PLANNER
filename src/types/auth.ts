@@ -6,14 +6,15 @@ declare global {
       user?:{
         userId: string;
         email?: string;
+        role: "user" | "admin";
       };
-      admin?: unknown;
     }
   }
 }
 export interface CustomJwtPayload extends JwtPayload {
   userId: string;
   email?: string;
+  role?: "user" | "admin";
 }
 
 // export interface AuthRequest extends Express.Request {

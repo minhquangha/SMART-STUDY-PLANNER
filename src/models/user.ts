@@ -62,6 +62,6 @@ const userSchema = new mongoose.Schema({
     type: Number, // phút
     default: 0,
   },
-});
+},{timestamps:true});
 
 export const User = mongoose.model("User", userSchema);

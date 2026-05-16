@@ -5,6 +5,7 @@ interface DeleteTaskRequest extends Request {
 	user?: {
 		userId: string;
 		email?: string;
+		role: 'user' | 'admin';
 	};
 	params: {
 		id: string;

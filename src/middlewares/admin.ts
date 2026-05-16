@@ -1,31 +1,24 @@
 import type { Request, Response, NextFunction } from "express";
-import { Admin } from "@/models/admin.js";
 import { sendError } from "@/utils/apiresponse.js";
-import jwt from "jsonwebtoken";
-import { ADMIN_COOKIE_NAME } from "@/utils/authCookies.js";
 
-const adminMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies?.[ADMIN_COOKIE_NAME];
-    if (!token) {
-        return sendError(res, "No token provided", 401);
+type UserRole = "user" | "admin";
+
+export const requireRole =
+  (...roles: UserRole[]) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return sendError(res, "Unauthorized", 401);
     }
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-        return sendError(res, "JWT_SECRET is not configured", 500);
+
+    if (!roles.includes(req.user.role)) {
+      return sendError(res, "Forbidden", 403);
     }
-    try {
-        const decoded = jwt.verify(token, jwtSecret) as { id?: string };
-        if (!decoded.id) {
-            return sendError(res, "Invalid token", 401);
-        }
-        const admin = await Admin.findById(decoded.id);
-        if (!admin) {
-            return sendError(res, "Admin not found", 404);
-        }
-        req.admin = admin;
-        next();
-    } catch (err) {
-        return sendError(res, "Invalid token", 401);
-    }
+
+    next();
+  };
+
+const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  return requireRole("admin")(req, res, next);
 };
+
 export default adminMiddleware;

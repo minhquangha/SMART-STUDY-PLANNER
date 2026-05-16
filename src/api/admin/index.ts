@@ -7,7 +7,7 @@ import { sendError, sendSuccess } from '@/utils/apiresponse.js';
 const router: Router = Router();
 
 router.get('/session', (_req: Request, res: Response) => {
-  return sendSuccess(res, { authenticated: true });
+  return sendSuccess(res, { authenticated: true, user: _req.user });
 });
 
 const parsePositiveInteger = (
@@ -93,6 +93,10 @@ router.delete('/users/:id', async (req: Request, res: Response) => {
       return sendError(res, 'Invalid user id', 400);
     }
 
+    if (req.user?.userId === id) {
+      return sendError(res, 'Admin cannot delete their own account', 400);
+    }
+
     const user = await User.findById(id).select('_id');
 
     if (!user) {
@@ -108,6 +112,42 @@ router.delete('/users/:id', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error deleting admin user:', error);
+    return sendError(res, 'Server error', 500);
+  }
+});
+
+router.patch('/users/:id/role', async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const role = req.body?.role;
+
+    if (typeof id !== 'string' || !mongoose.Types.ObjectId.isValid(id)) {
+      return sendError(res, 'Invalid user id', 400);
+    }
+
+    if (role !== 'user' && role !== 'admin') {
+      return sendError(res, 'Role must be user or admin', 400);
+    }
+
+    if (req.user?.userId === id && role !== 'admin') {
+      return sendError(res, 'Admin cannot remove their own admin role', 400);
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $set: { role, updatedAt: new Date() } },
+      { new: true, runValidators: true }
+    )
+      .select('-password')
+      .lean();
+
+    if (!user) {
+      return sendError(res, 'User not found', 404);
+    }
+
+    return sendSuccess(res, user);
+  } catch (error) {
+    console.error('Error updating user role:', error);
     return sendError(res, 'Server error', 500);
   }
 });

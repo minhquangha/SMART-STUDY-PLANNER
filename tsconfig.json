@@ -5,6 +5,7 @@
 		"paths": {
 			"@/*": ["*"]
 		},
+		"ignoreDeprecations": "5.0",
 		// File Layout
 		"rootDir": "./src",
 		// "outDir": "./dist",
