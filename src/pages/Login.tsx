@@ -54,7 +54,7 @@ export default function LoginPage() {
 
     try {
       setIsSubmitting(true)
-      await login({
+      const response = await login({
         identifier: identifier.trim(),
         password,
       })
@@ -64,7 +64,8 @@ export default function LoginPage() {
         description: "Chào mừng bạn quay lại Smart Study Planner.",
         variant: "success",
       })
-      navigate("/dashboard")
+      const role = response.data.data.user.role
+      navigate(role === "admin" ? "/admin/users" : "/dashboard")
     } catch (err) {
       console.error(err)
       setErrors({

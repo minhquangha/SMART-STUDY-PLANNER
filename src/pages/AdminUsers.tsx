@@ -14,6 +14,7 @@ import {
   Search,
   ShieldCheck,
   Trash2,
+  UserCog,
   Users,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge.tsx"
@@ -29,10 +30,12 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx"
 import { useToast } from "@/contexts/toast-context"
+import { logout } from "@/services/authService"
 import {
-  adminLogout,
   deleteAdminUser,
+  getAdminSession,
   getAdminUsers,
+  updateAdminUserRole,
   type AdminUser,
   type AdminUsersPagination,
 } from "@/services/adminService"
@@ -75,6 +78,8 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [updatingRoleId, setUpdatingRoleId] = useState<string | null>(null)
+  const [currentAdminId, setCurrentAdminId] = useState<string | null>(null)
 
   const resultRange = useMemo(() => {
     if (pagination.total === 0) {
@@ -99,8 +104,11 @@ export default function AdminUsersPage() {
       setUsers(data.users)
       setPagination(data.pagination)
     } catch (err) {
-      if (isAxiosError(err) && err.response?.status === 401) {
-        navigate("/admin-login")
+      if (
+        isAxiosError(err) &&
+        [401, 403].includes(err.response?.status ?? 0)
+      ) {
+        navigate("/login")
         return
       }
 
@@ -115,6 +123,26 @@ export default function AdminUsersPage() {
     void loadUsers()
   }, [loadUsers])
 
+  useEffect(() => {
+    let isMounted = true
+
+    getAdminSession()
+      .then((session) => {
+        if (isMounted) {
+          setCurrentAdminId(session.user.userId)
+        }
+      })
+      .catch((err) => {
+        if (isAxiosError(err) && [401, 403].includes(err.response?.status ?? 0)) {
+          navigate("/login")
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [navigate])
+
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setPage(1)
@@ -128,6 +156,15 @@ export default function AdminUsersPage() {
   }
 
   const handleDeleteUser = async (user: AdminUser) => {
+    if (user._id === currentAdminId) {
+      toast({
+        title: "Khong the xoa tai khoan hien tai",
+        description: "Admin khong duoc tu xoa chinh minh.",
+        variant: "error",
+      })
+      return
+    }
+
     const displayName = user.name?.trim() || user.email
     const confirmed = window.confirm(
       `Xoa user "${displayName}" va tat ca task lien quan?`
@@ -164,11 +201,51 @@ export default function AdminUsersPage() {
     }
   }
 
+  const handleToggleRole = async (user: AdminUser) => {
+    const nextRole = user.role === "admin" ? "user" : "admin"
+
+    if (user._id === currentAdminId && nextRole !== "admin") {
+      toast({
+        title: "Khong the ha quyen chinh minh",
+        description: "Admin hien tai phai giu role admin.",
+        variant: "error",
+      })
+      return
+    }
+
+    setUpdatingRoleId(user._id)
+
+    try {
+      const updatedUser = await updateAdminUserRole(user._id, nextRole)
+      setUsers((currentUsers) =>
+        currentUsers.map((currentUser) =>
+          currentUser._id === updatedUser._id
+            ? { ...currentUser, role: updatedUser.role }
+            : currentUser
+        )
+      )
+      toast({
+        title: "Da cap nhat role",
+        description: `${user.email} hien la ${nextRole}.`,
+        variant: "success",
+      })
+    } catch (err) {
+      console.error("Error updating user role:", err)
+      toast({
+        title: "Khong the cap nhat role",
+        description: "Vui long thu lai sau.",
+        variant: "error",
+      })
+    } finally {
+      setUpdatingRoleId(null)
+    }
+  }
+
   const handleLogout = async () => {
-    await adminLogout().catch((error) => {
+    await logout().catch((error) => {
       console.error("Admin logout failed:", error)
     })
-    navigate("/admin-login")
+    navigate("/login")
   }
 
   return (
@@ -331,21 +408,47 @@ export default function AdminUsersPage() {
                       {formatStudyTime(user.totalStudyTime ?? 0)}
                     </TableCell>
                     <TableCell>{formatDate(user.createdAt)}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        title="Xoa user"
-                        disabled={deletingId === user._id}
-                        onClick={() => void handleDeleteUser(user)}
-                      >
-                        {deletingId === user._id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          title={
+                            user.role === "admin"
+                              ? "Chuyen thanh user"
+                              : "Chuyen thanh admin"
+                          }
+                          disabled={
+                            updatingRoleId === user._id ||
+                            (user._id === currentAdminId &&
+                              user.role === "admin")
+                          }
+                          onClick={() => void handleToggleRole(user)}
+                        >
+                          {updatingRoleId === user._id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <UserCog className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          title="Xoa user"
+                          disabled={
+                            deletingId === user._id || user._id === currentAdminId
+                          }
+                          onClick={() => void handleDeleteUser(user)}
+                        >
+                          {deletingId === user._id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

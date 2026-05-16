@@ -1,10 +1,5 @@
 import { api } from "@/services/api"
 
-export interface AdminLoginData {
-  username: string
-  password: string
-}
-
 export interface AdminUser {
   _id: string
   name: string
@@ -38,28 +33,17 @@ export interface AdminUsersParams {
   limit?: number
 }
 
-export const adminLogin = async (data: AdminLoginData) => {
-  const response = await api.post<{ message: string }>(
-    "/admin-login",
-    data
-  )
-
-  return response.data
-}
-
-export const adminLogout = async () => {
-  const response = await api.post<{
-    success: boolean
-    data: { message: string }
-  }>("/admin-logout")
-
-  return response.data.data
-}
-
 export const getAdminSession = async () => {
   const response = await api.get<{
     success: boolean
-    data: { authenticated: boolean }
+    data: {
+      authenticated: boolean
+      user: {
+        userId: string
+        email?: string
+        role: "user" | "admin"
+      }
+    }
   }>("/admin/session")
 
   return response.data.data
@@ -79,6 +63,18 @@ export const deleteAdminUser = async (id: string) => {
     success: boolean
     data: { message: string; deletedTaskCount: number }
   }>(`/admin/users/${id}`)
+
+  return response.data.data
+}
+
+export const updateAdminUserRole = async (
+  id: string,
+  role: "user" | "admin"
+) => {
+  const response = await api.patch<{
+    success: boolean
+    data: AdminUser
+  }>(`/admin/users/${id}/role`, { role })
 
   return response.data.data
 }

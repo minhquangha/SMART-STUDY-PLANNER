@@ -8,7 +8,6 @@ import AdminProtectedRoute from "@/routes/AdminProtectedRoute"
 import TasksPage from "@/pages/TasksPage"
 import ProfilePage from "@/pages/Profile"
 import Status from "@/pages/DashboardOverview"
-import AdminLoginPage from "@/pages/AdminLogin"
 import AdminUsersPage from "@/pages/AdminUsers"
 export function App() {
   return (
@@ -17,7 +16,6 @@ export function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route
           path="/admin/users"
           element={

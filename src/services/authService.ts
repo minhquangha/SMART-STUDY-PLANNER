@@ -5,6 +5,31 @@ interface LoginData {
   password: string
 }
 
+export interface SessionUser {
+  userId: string
+  email?: string
+  role: "user" | "admin"
+}
+
+export interface LoginResponse {
+  success: boolean
+  data: {
+    message: string
+    user: {
+      id: string
+      name: string
+      email: string
+      role: "user" | "admin"
+    }
+    accessToken: string
+  }
+}
+
+export interface SessionResponse {
+  authenticated: boolean
+  user: SessionUser
+}
+
 interface RegisterData {
   name: string
   email: string
@@ -12,7 +37,7 @@ interface RegisterData {
 }
 
 export const login = (data: LoginData) => {
-  return api.post("/login", data)
+  return api.post<LoginResponse>("/login", data)
 }
 
 export const register = (data: RegisterData) => {
@@ -23,6 +48,10 @@ export const logout = () => {
   return api.post("/logout")
 }
 
+export const refreshSession = () => {
+  return api.post<{ success: boolean; data: SessionResponse }>("/refresh")
+}
+
 export const getSession = () => {
-  return api.get("/me/session")
+  return api.get<{ authenticated: boolean; user: SessionUser }>("/me/session")
 }
