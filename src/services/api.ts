@@ -1,11 +1,11 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios"
-
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
 export const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: API_URL,
   withCredentials: true,
 })
 
