@@ -55,8 +55,8 @@ export const uploadAvatar = async (
   const formData = new FormData();
   formData.append("avatar", file);
 
-  const response = await api.post<UploadAvatarResponse>(
-    "/api/users/avatar",
+  const response = await api.patch<UploadAvatarResponse>(
+    "/me/profile/avartar",
     formData,
     {
       onUploadProgress: (event) => {
